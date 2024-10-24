@@ -1,0 +1,109 @@
+@model pokeapi_net_mvc.Models.Pokemon
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex</title>
+    <link rel="stylesheet" href="~/css/pokedex-style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="pokedex">
+        <!-- Left panel for displaying Pokémon sprite and controls -->
+        <div class="left-panel">
+            <div class="circle"></div>
+            <div class="screen">
+                <img id="pokemon-sprite" src="@Model.Sprite" alt="Pokemon Sprite" class="pokemon-image">
+            </div>
+            <div class="controls">
+                <div class="buttons">
+                    <div class="red-button"></div>
+                    <div class="blue-button"></div>
+                </div>
+                <div class="d-pad">
+                    <div class="d-pad-up">
+                        <button id="up-btn">▲</button>
+                    </div>
+                    <div class="d-pad-left">
+                        <button id="prev-btn">◀</button>
+                    </div>
+                    <div class="d-pad-down">
+                        <button id="down-btn">▼</button>
+                    </div>
+                    <div class="d-pad-right">
+                        <button id="next-btn">▶</button>
+                    </div>
+                </div>
+            </div>
+            <div class="controls-2">
+                <div class="green-screen"></div>
+            </div>
+        </div>
+
+        <!-- Right panel for displaying Pokémon details -->
+        <div class="right-panel">
+            <div class="screen-large">
+                <h2 id="pokemon-name">@Model.Name</h2>
+                <p id="pokemon-id">ID: @Model.Id</p>
+                <p id="pokemon-description">@Model.Description</p>
+            </div>
+            <div class="grid-buttons">
+                <div class="button-row">
+                    <div class="button-blue"></div>
+                    <div class="button-blue"></div>
+                    <div class="button-blue"></div>
+                </div>
+                <div class="button-row">
+                    <div class="button-white"></div>
+                    <div class="button-white"></div>
+                </div>
+                <div class="circle-button"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to manage Pokémon navigation -->
+    <script>
+        let currentPokemonId = @Model.Id;  // Razor renders the current Pokémon ID
+
+        // Function to update the Pokédex display with the fetched Pokémon data
+        function updatePokedex(pokemon) {
+            document.getElementById('pokemon-sprite').src = pokemon.sprite;  // Update sprite image
+            document.getElementById('pokemon-name').textContent = pokemon.name;  // Update Pokémon name
+            document.getElementById('pokemon-id').textContent = `ID: ${pokemon.id}`;  // Update Pokémon ID
+            document.getElementById('pokemon-description').textContent = pokemon.description;  // Update description
+        }
+
+        // Function to fetch Pokémon data from the backend
+        async function fetchPokemon(id) {
+            try {
+                const response = await fetch(`/Pokemon/GetPokemon?id=${id}`);  // Fetch data from the API
+                const pokemon = await response.json();  // Parse the JSON response
+                updatePokedex(pokemon);  // Update the display with the fetched data
+            } catch (error) {
+                console.error('Error fetching Pokémon:', error);  // Log any errors
+            }
+        }
+
+        // Event listeners for navigation buttons
+        document.getElementById('next-btn').addEventListener('click', () => {
+            currentPokemonId++;  // Increment current Pokémon ID
+            fetchPokemon(currentPokemonId);  // Fetch next Pokémon
+        });
+
+        document.getElementById('prev-btn').addEventListener('click', () => {
+            if (currentPokemonId > 1) {  // Prevent going below ID 1
+                currentPokemonId--;  // Decrement current Pokémon ID
+                fetchPokemon(currentPokemonId);  // Fetch previous Pokémon
+            }
+        });
+    </script>
+</body>
+
+</html>
